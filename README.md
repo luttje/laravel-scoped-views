@@ -1,4 +1,15 @@
-# (demo) Auto include scripts and styles in Blade
+# Laravel Scoped Views
+
+This is a **proof of concept** project to show how we can scope components using the pre-processing of (s)css files. Meaning that styles specified in a child component, won't leak out into the rest of the page. 
+
+This is achieved by applying a unique attribute to each component and modifying all selectors in the css during compilation (using [this `postcss-prefix-selector` plugin](https://www.npmjs.com/package/postcss-prefix-selector)).
+
+This is a different (and simpler) approach from my other recent experiment which uses Shadow DOM to achieve the same: https://github.com/luttje/laravel-scoped-components
+
+![](.github/resulting-html.png)
+
+
+## Basic Usage
 
 1. Create a blade view (or component)
 2. Create a `.js` or `.css` with the same name (minus the .blade. part) next to it

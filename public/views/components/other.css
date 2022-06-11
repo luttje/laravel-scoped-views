@@ -1,4 +1,4 @@
-p {
+[data-scoped-views-components-other] p {
     color: red;
     font-weight: bolder;
 }

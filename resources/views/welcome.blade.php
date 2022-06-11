@@ -3,16 +3,16 @@
 @section('content')
 <section>
     <p>
-        Paragraph in component (scoped)
+        Unstyled paragraph in child view
     </p>
 </section>
 <section>
     <x-simple title="test">
-        This is a test component
+        This is a test component who's styling is scoped to the component.
     </x-simple>
 
     <x-other title="script test">
-        content
+        content with styling is scoped to the component.
     </x-other>
 </section>
 @endsection

@@ -3,11 +3,6 @@ const fs = require('fs');
 const postcss = require('postcss');
 const prefixer = require('postcss-prefix-selector');
 
-mix.js('resources/js/app.js', 'public/js')
-    .postCss('resources/css/app.css', 'public/css', [
-        //
-    ]);
-
 function resourcePath(path) {
     return `resources/${path}`;
 }
@@ -27,6 +22,16 @@ function includeFile(path) {
             [
                 prefixer({
                     prefix: `[data-scoped-${safePath}]`,
+
+                    transform: function (prefix, selector, prefixedSelector, file) {
+                        const rootNode = postcss.parse(fs.readFileSync(file)).first;
+
+                        if (rootNode.type === 'comment' && rootNode.text.trim().toLowerCase() === '!allglobal') {
+                            return selector;
+                        } else {
+                            return prefixedSelector;
+                        }
+                    }
                 })
             ]
         );

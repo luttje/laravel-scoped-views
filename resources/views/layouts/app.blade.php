@@ -6,13 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ config('app.name') }}</title>
 
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-        }
-    </style>
-
     @livewireStyles
+    @stack('scoped-styles')
 </head>
 <body>
     <p>
@@ -22,5 +17,6 @@
     @yield('content')
 
     @livewireScripts
+    @stack('scoped-scripts')
 </body>
 </html>

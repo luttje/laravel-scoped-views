@@ -42,12 +42,14 @@ class AppServiceProvider extends ServiceProvider
 
             $scriptFile = str_replace('.blade.php', '.js', $path);
             if (File::exists(public_path($scriptFile))) {
-                $includes .= '<script src="' . asset($scriptFile) . '" defer></script>';
+                $scriptFile = asset($scriptFile);
+                $includes .= "@push('scoped-scripts', '<script src=\"$scriptFile\" defer></script>')";
             }
 
             $styleFile = str_replace('.blade.php', '.css', $path);
             if (File::exists(public_path($styleFile))) {
-                $includes .= '<link rel="stylesheet" href="' . asset($styleFile) . '">';
+                $styleFile = asset($styleFile);
+                $includes .= "@push('scoped-styles', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
             }
 
             return $includes;
@@ -63,7 +65,6 @@ class AppServiceProvider extends ServiceProvider
                 $viewName = $view->getName();
                 if (!in_array($viewName, $handledViews)) {
                     $handledViews[] = $viewName;
-
                     $includes = getAssetIncludes($path);
 
                     return "$includes $value";

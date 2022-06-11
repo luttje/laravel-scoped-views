@@ -22,7 +22,7 @@
     "bugs": {
         "url": "https://github.com/luttje/laravel-scoped-views/issues"
     },
-    "main": "index.js",
+    "main": "src-js/index.js",
     "devDependencies": {
         "laravel-mix": "^6.0.49",
         "postcss": "^8.4.14",

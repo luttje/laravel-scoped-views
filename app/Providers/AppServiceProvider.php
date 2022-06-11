@@ -49,7 +49,16 @@ class AppServiceProvider extends ServiceProvider
             $styleFile = str_replace('.blade.php', '.css', $path);
             if (File::exists(public_path($styleFile))) {
                 $styleFile = asset($styleFile);
-                $includes .= "@push('scoped-styles', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
+
+                if (config('scopedblade.defer_css') === true) {
+                    $cssComponent = <<<CSS_COMPONENT_STRING
+                    <link rel="preload" href="$styleFile" as="style" onload="this.onload=null;this.rel='stylesheet'">
+                    <noscript><link rel="stylesheet" href="$styleFile"></noscript>
+                    CSS_COMPONENT_STRING;
+                    $includes .= "@push('scoped-styles') $cssComponent @endpush";
+                } else {
+                    $includes .= "@push('scoped-styles', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
+                }
             }
 
             return $includes;

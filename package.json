@@ -2,12 +2,13 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "mix",
+        "development": "mix && npm run clear-views",
         "watch": "mix watch",
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production && npm run clear-views",
+        "clear-views": "php artisan view:clear"
     },
     "devDependencies": {
         "axios": "^0.25",

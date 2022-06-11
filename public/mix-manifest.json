@@ -1,6 +1,7 @@
 {
     "/views/components/other.js": "/views/components/other.js",
     "/views/layouts/app.js": "/views/layouts/app.js",
+    "/views/livewire/livewire-component.css": "/views/livewire/livewire-component.css",
     "/views/layouts/app.css": "/views/layouts/app.css",
     "/views/components/simple.css": "/views/components/simple.css",
     "/views/components/other.css": "/views/components/other.css"

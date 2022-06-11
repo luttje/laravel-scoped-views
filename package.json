@@ -2,13 +2,12 @@
     "private": true,
     "scripts": {
         "dev": "npm run development",
-        "development": "mix && npm run clear-views",
+        "development": "mix",
         "watch": "mix watch",
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production && npm run clear-views",
-        "clear-views": "php artisan view:clear"
+        "production": "mix --production"
     },
     "devDependencies": {
         "axios": "^0.25",
@@ -17,6 +16,7 @@
         "postcss": "^8.1.14"
     },
     "dependencies": {
+        "alpinejs": "^3.10.2",
         "postcss-prefix-selector": "^1.15.0"
     }
 }

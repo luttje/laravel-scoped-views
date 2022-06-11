@@ -84,9 +84,19 @@ class AppServiceProvider extends ServiceProvider
         });
 
 
-        Blade::directive('scope', function () {
+        Blade::directive('scope', function ($attributesJson = '{}') {
+            $attributes = '';
+
+            if($attributesJson) {
+                $attributes = json_decode($attributesJson, true);
+                $attributes = implode(' ', array_map(function ($key, $value) {
+                    $value = str_replace('"', '\\"', $value);
+                    return "$key=\"$value\"";
+                }, array_keys($attributes), $attributes));
+            }
+
             return <<<SCRIPT_ECHO
-            <div data-scoped-<?php echo \$safeViewPath; ?>>
+            <div data-scoped-<?php echo \$safeViewPath; ?> $attributes>
             SCRIPT_ECHO;
         });
         Blade::directive('endscope', function () use (&$currentScriptId) {

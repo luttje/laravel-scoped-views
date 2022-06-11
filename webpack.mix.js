@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const fs = require('fs');
+const { exec } = require('child_process');
 const postcss = require('postcss');
 const prefixer = require('postcss-prefix-selector');
 
@@ -57,3 +58,7 @@ function includeResourcesFolder(directory) {
 }
 
 includeResourcesFolder('views');
+
+mix.after(() => {
+    exec('php artisan view:clear');
+});

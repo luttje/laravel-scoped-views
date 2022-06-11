@@ -12,6 +12,3 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-
-# These are compiled using `npm run dev, watch or prod`
-/public/views

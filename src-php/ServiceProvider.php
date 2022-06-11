@@ -1,30 +1,42 @@
 <?php
 
-namespace App\Providers;
+namespace Luttje\ScopedViews;
 
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
     /**
-     * Register any application services.
+     * Register services.
      *
      * @return void
      */
     public function register()
     {
-        //
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/scopedblade.php', 'scopedblade'
+        );
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap services.
      *
      * @return void
      */
     public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../config/scopedblade.php' => config_path('scopedblade.php'),
+        ]);
+
+        $this->registerViewOverrides();
+        $this->registerBladeDirectives();
+    }
+
+    protected function registerViewOverrides()
     {
         // To prevent double including css and js files
         $handledViews = [];
@@ -42,12 +54,16 @@ class AppServiceProvider extends ServiceProvider
 
             $scriptFile = str_replace('.blade.php', '.js', $path);
             if (File::exists(public_path($scriptFile))) {
+                $stackName = config('scopedblade.stack_name_js');
                 $scriptFile = asset($scriptFile);
-                $includes .= "@push('scoped-scripts', '<script src=\"$scriptFile\" defer></script>')";
+                $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
+
+                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer></script>')";
             }
 
             $styleFile = str_replace('.blade.php', '.css', $path);
             if (File::exists(public_path($styleFile))) {
+                $stackName = config('scopedblade.stack_name_css');
                 $styleFile = asset($styleFile);
 
                 if (config('scopedblade.defer_css') === true) {
@@ -55,9 +71,9 @@ class AppServiceProvider extends ServiceProvider
                     <link rel="preload" href="$styleFile" as="style" onload="this.onload=null;this.rel='stylesheet'">
                     <noscript><link rel="stylesheet" href="$styleFile"></noscript>
                     CSS_COMPONENT_STRING;
-                    $includes .= "@push('scoped-styles') $cssComponent @endpush";
+                    $includes .= "@push('$stackName') $cssComponent @endpush";
                 } else {
-                    $includes .= "@push('scoped-styles', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
+                    $includes .= "@push('$stackName', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
                 }
             }
 
@@ -82,8 +98,10 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
         });
+    }
 
-
+    protected function registerBladeDirectives()
+    {
         Blade::directive('scope', function ($attributesJson = '{}') {
             $attributes = '';
 
@@ -99,7 +117,8 @@ class AppServiceProvider extends ServiceProvider
             <div data-scoped-<?php echo \$safeViewPath; ?> $attributes>
             SCRIPT_ECHO;
         });
-        Blade::directive('endscope', function () use (&$currentScriptId) {
+
+        Blade::directive('endscope', function () {
             return <<<SCRIPT_ECHO
             </div> <!-- END OF data-scoped-<?php echo \$safeViewPath; ?> -->
             SCRIPT_ECHO;

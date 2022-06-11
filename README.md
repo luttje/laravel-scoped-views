@@ -16,5 +16,8 @@ This is a different (and simpler) approach from my other recent experiment which
 3. Run `npm run dev` to compile the scripts and styles to the `public/views/...` directory
 4. All views will check for the existence of these files when they're compiled and include them automatically.
 
-**Take note that you may have to clear your view cache if you add these files!**
-To do this I added `php artisan view:clear` in the relevant `package.json` scripts. So running `npm run dev` will automatically clear view cache.
+
+## Notes
+- **You have to clear your view cache if you add .js and .css files**
+To do this I added `php artisan view:clear` in the relevant `package.json` scripts. This means running `npm run dev` will automatically clear view cache.
+- Javascript files are not scoped nor sandboxed in any way. They're simply automatically included.

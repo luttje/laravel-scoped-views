@@ -1,6 +1,5 @@
 {
     "name": "luttje/laravel-scoped-views",
-    "version": "0.1.0",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "description": "Scope CSS and JS in Laravel, using the blade directives @scope and @endscope",

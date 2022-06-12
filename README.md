@@ -12,7 +12,7 @@ When Laravel Mix is run (`npm run dev`/`watch`/`prod`) a unique attribute is pre
 You need to install this package using both [composer](https://getcomposer.org/) and [npm](https://nodejs.org/en/download/):
 
 1. `npm install TODO` (still TODO: I will upload this to npm soon)
-2. `composer install TODO` (also still TODO)
+2. `composer require luttje/laravel-scoped-views`
 
 
 ## Basic Usage

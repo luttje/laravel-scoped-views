@@ -1,37 +1,33 @@
 # Laravel Scoped Views
 
-This is a **proof of concept** project to show how we can scope components using the pre-processing of (s)css files. Meaning that styles specified in a child component, won't leak out into the rest of the page. 
+This package can scope view/component styles by pre-processing (s)css files. With "to scope" we mean that styles specified in a child component won't leak out into the rest of the page. 
 
-This is achieved by applying a unique attribute to each component and modifying all selectors in the css during compilation (using [this `postcss-prefix-selector` plugin](https://www.npmjs.com/package/postcss-prefix-selector)).
-
-This is a different (and simpler) approach from my other recent experiment which uses Shadow DOM to achieve the same: https://github.com/luttje/laravel-scoped-components
+When Laravel Mix `npm run dev/watch/prod` is run a unique attribute is applied to each selector. The same attribute is added to the component.
 
 ![](.github/resulting-html.png)
 
 
+## Installation
+
+You need to install this package using both [composer](https://getcomposer.org/) and [npm](https://nodejs.org/en/download/):
+
+1. `npm install TODO` (still TODO: I will upload this to npm soon)
+2. `composer install TODO` (also still TODO)
+
+
 ## Basic Usage
 
-1. `npm install TODO` (still TODO: I will upload this to npm tomorrow)
-2. `composer install TODO` (still TODO)
-3. Create a blade view (`x.blade.php`), with accompanying script (`x.js`) and style files (`x.css` OR `x.scss`) of the same name:
+1. Create a blade view (`x.blade.php`), with accompanying script (`x.js`) and style files (`x.css` OR `x.scss`) of the same name:
     ```html
-    <!-- example.blade.php -->
+    <!-- resources/views/components/example.blade.php -->
     @scope
     <p>
         Paragraphs in this component are blue.
     </p>
     @endscope
     ```
-
-    ```js
-    // example.js
-    var myScopeAttribute = document.currentScript.getAttribute('data-scope-parent');
-    var myScopedElement = document.querySelector(`[data-scope="${myScopeAttribute}"]`);
-    console.log(myScopedElement);
-    ```
-
     ```scss
-    // example.scss
+    // resources/views/components/example.scss
     p {
         color: blue;
 
@@ -40,9 +36,30 @@ This is a different (and simpler) approach from my other recent experiment which
         }
     }
     ```
-4. In your layout view (e.g: `resources/views/layouts/app.blade.php`) place `@stack('scoped-scripts')` and `@stack('scoped-styles')` to mark where scoped scripts and styles (respectively) are placed.
-5. Modify `webpack.mix.js`:
     ```js
+    // resources/views/components/example.js
+    console.log('hello world!');
+    ```
+2. Add `@stack('scoped-scripts')` and `@stack('scoped-styles')` to your layout to mark where scoped scripts and styles (respectively) are to be placed:
+    ```html
+    <!-- resources/views/layouts/app.blade.php -->
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <!-- Links will be placed here -->
+        @stack('scoped-styles')
+    </head>
+    <body>
+        @yield('content')
+
+        <!-- Scripts will be placed here -->
+        @stack('scoped-scripts')
+    </body>
+    </html>
+    ```
+3. Modify `webpack.mix.js` to include a call to `mix.scoped()`:
+    ```js
+    // webpack.mix.js
     const mix = require('laravel-mix');
     require('laravel-scoped-views');
 
@@ -51,18 +68,70 @@ This is a different (and simpler) approach from my other recent experiment which
         includeSass: true,
     });
     ```
-5. Run `npm run dev` to compile the scripts and styles to the `public/views/...` directory.
-6. All views will check for the existence of these files when they're compiled and include them automatically.
+4. Run `npm run dev` (or `watch` or `prod`).
 
-9. You can accompany your layout view with a scoped `.css` and `.js` in the same way. But you probably don't want to scope the css in your layout, so put `/* !allGlobal */` at the top of your layout css file ([see example](resources/views/layouts/app.css)) to disable scoping.
+With this last step all `.js`, `.css` (or `.scss`) with the same names as views will be compiled to the `public/views` directory.
+
+Blade views will check for the existence of these script and style files and include them automatically (once). This check happens when blade views are compiled the first time. Meaning the result is cached.
 
 
 ## Configuration
 
-- `php artisan vendor:publish --provider="Luttje\ScopedViews\ServiceProvider"`
-- laravel mix config TODO
+### Configuring Laravel Mix
+The `mix.scoped()` function accepts a single object with configuration options:
+```js
+mix.scoped({
+    // Directory paths (defaults will work for 99% of Laravel installations)
+    paths: {
+        resources: 'resources',
+        views: 'views',
+        public: 'public',
+    },
+
+    // Whether to automatically run `php artisan view:clear` after compilation
+    clearViewCache: true,
+
+    // Should Sass be compiled? (Enabling this will automatically install dependencies the first time Mix runs)
+    includeSass: false,
+
+    // Contains an array extensions to handle for each view. Check `src-js/handlers` for the defaults (js, css, scss).
+    handlers: {
+        text: [
+            // If a file in resources matches this regex, the function will be called
+            /.txt$/,
+            // Function to be called. Should instruct Laravel Mix.
+            (resourcePath, publicPath, uniqueName, mix, plugin) => {
+                mix.copy(resourcePath, publicPath);
+            }
+        ],
+    }
+});
+```
+*If you do not specify an option, the defaults will be used. See [src-js/index.js](src-js/index.js) for the default configurations.*
+
+
+### Configuring the Service Provider
+You can configure css and js deferring, and the names of the stacks in `config/scopedblade.php`. 
+Run `php artisan vendor:publish --provider="Luttje\ScopedViews\ServiceProvider"` to publish that config file to your project.
+
 
 ## Notes
+
+### Global layout style
+A layout view is treated exactly as a normal view. This means you can accompany a layout with `.js` and `.css` (or `.scss`) of the same name. However you likely don't want to scope the css to just your layout. Disable scoping by placing `/* !allGlobal */` on the first line of the css file.
+
+
+### Clear your cache
 - **You have to clear your view cache if you add .js and .css files**
-To do this I added `php artisan view:clear` in the relevant `package.json` scripts. This means running `npm run dev` will automatically clear view cache.
-- Javascript files are not scoped nor sandboxed in any way. They're simply automatically included when the view they belong to is used.
+By default running `npm run dev` will automatically clear view cache. If you disable this configuration (`mix.scoped({ clearViewCache: false }`) you have to run `php artisan view:clear` manually.
+
+
+### Javascript scope
+Javascript files are simply automatically included on the page (once) when the view they belong to is used. They are not scoped or sandboxed.
+
+Use the script tag's `data-scope-parent` attribute if you want to get the scoped HTML element that belongs with your script.
+```js
+var myScopeAttribute = document.currentScript.getAttribute('data-scope-parent');
+var myScopedElement = document.querySelector(`[data-scope="${myScopeAttribute}"]`);
+console.log(myScopedElement);
+```

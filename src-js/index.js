@@ -22,20 +22,20 @@ class ScopedViewsPlugin {
             },
             clearViewCache: true,
             includeSass: false,
-            handlers: [
-                [
-                    /\.s[ac]ss$/,
-                    require('./handlers/sass')
-                ],
-                [
-                    /\.css$/,
-                    require('./handlers/css')
-                ],
-                [
+            handlers: {
+                js: [
                     /\.js$/,
                     require('./handlers/js')
                 ],
-            ],
+                css: [
+                    /\.css$/,
+                    require('./handlers/css')
+                ],
+                sass: [
+                    /\.s[ac]ss$/,
+                    require('./handlers/sass')
+                ],
+            },
         };
 
         const mergeConfig = require('./utils/merge-deep');
@@ -69,7 +69,9 @@ class ScopedViewsPlugin {
         let uniqueName = path.substring(0, path.lastIndexOf('.'));
         uniqueName = uniqueName.replace(/[\/\.]/g, '-');
 
-        this.config.handlers.forEach(handler => {
+        for (const handlerName in this.config.handlers) {
+            const handler = this.config.handlers[handlerName];
+
             if (handler[0].test(path)) {
                 handler[1](
                     this.resourcePath(path),
@@ -78,7 +80,7 @@ class ScopedViewsPlugin {
                     mix,
                     this);
             }
-        });
+        }
     }
 
     // Recursively iterate the views directory and copy all css and js files to the public directory

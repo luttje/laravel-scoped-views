@@ -28,6 +28,7 @@ class CompilePostCssTask extends Task {
     }
 
     onChange(updatedFile) {
+        console.log(`Scoped views: CSS file changed, recompiling ${updatedFile}...`);
         this.compile();
     }
 

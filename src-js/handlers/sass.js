@@ -11,7 +11,8 @@ class CompileSassTask extends Task {
         const os = require('os');
         const pathWithoutExt = resourcePath.substring(0, resourcePath.lastIndexOf('.'));
 
-        this.outFile = path.join(os.tmpdir(), `${pathWithoutExt}.css`);
+        const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luttje-scoped-views-'));
+        this.outFile = path.join(outDir, `${pathWithoutExt}.css`);
         this.resourcePath = resourcePath;
 
         publicPath = publicPath.substring(0, publicPath.lastIndexOf('.'));
@@ -42,6 +43,8 @@ class CompileSassTask extends Task {
     }
 
     onChange(updatedFile) {
+        console.log(`Scoped views: SASS file changed, recompiling ${updatedFile}...`);
+
         setTimeout(() => {
             this.precompile();
         }, 100); // Delay after VSCode save, otherwise we get an exception...

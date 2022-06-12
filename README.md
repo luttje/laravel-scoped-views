@@ -2,7 +2,7 @@
 
 This package can scope view/component styles by pre-processing (s)css files. With "to scope" we mean that styles specified in a child component won't leak out into the rest of the page. 
 
-When Laravel Mix `npm run dev/watch/prod` is run a unique attribute is applied to each selector. The same attribute is added to the component.
+When Laravel Mix is run (`npm run dev`/`watch`/`prod`) a unique attribute is prefixed to each selector. The same attribute is added to the component.
 
 ![](.github/resulting-html.png)
 

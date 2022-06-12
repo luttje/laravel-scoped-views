@@ -28,7 +28,7 @@ class CompilePostCssTask extends Task {
     }
 
     onChange(updatedFile) {
-        console.log(`Scoped views: CSS file changed, recompiling ${updatedFile}...`);
+        console.log(`Scoped views: CSS file changed, recompiling ${updatedFile}`);
         this.compile();
     }
 
@@ -39,7 +39,7 @@ class CompilePostCssTask extends Task {
 
         const resultingCss = postcss()
             .use(prefixer({
-                prefix: `[data-scoped-${this.uniqueName}]`,
+                prefix: `[data-scope="${this.uniqueName}"]`,
 
                 transform: function (prefix, selector, prefixedSelector) {
                     const rootNode = postcss.parse(file).first;

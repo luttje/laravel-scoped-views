@@ -58,7 +58,7 @@ class ServiceProvider extends BaseServiceProvider
                 $scriptFile = asset($scriptFile);
                 $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
 
-                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-self=\"$safePath\"></script>')";
+                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-parent=\"$safePath\"></script>')";
             }
 
             $styleFile = str_replace('.blade.php', '.css', $path);
@@ -114,13 +114,13 @@ class ServiceProvider extends BaseServiceProvider
             }
 
             return <<<SCRIPT_ECHO
-            <div data-scoped-<?php echo \$safeViewPath; ?> $attributes>
+            <div data-scope="<?php echo \$safeViewPath; ?>" $attributes>
             SCRIPT_ECHO;
         });
 
         Blade::directive('endscope', function () {
             return <<<SCRIPT_ECHO
-            </div> <!-- END OF data-scoped-<?php echo \$safeViewPath; ?> -->
+            </div> <!-- END OF data-scope="<?php echo \$safeViewPath; ?>" -->
             SCRIPT_ECHO;
         });
     }

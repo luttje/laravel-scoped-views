@@ -25,7 +25,9 @@ This is a different (and simpler) approach from my other recent experiment which
 
     ```js
     // example.js
-    
+    var myScopeAttribute = document.currentScript.getAttribute('data-scope-parent');
+    var myScopedElement = document.querySelector(`[data-scope="${myScopeAttribute}"]`);
+    console.log(myScopedElement);
     ```
 
     ```scss

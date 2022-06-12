@@ -43,7 +43,7 @@ class CompileSassTask extends Task {
     }
 
     onChange(updatedFile) {
-        console.log(`Scoped views: SASS file changed, recompiling ${updatedFile}...`);
+        console.log(`Scoped views: SASS file changed, recompiling ${updatedFile}`);
 
         setTimeout(() => {
             this.precompile();

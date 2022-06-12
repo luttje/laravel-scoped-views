@@ -13,21 +13,45 @@ This is a different (and simpler) approach from my other recent experiment which
 
 1. `npm install TODO` (still TODO: I will upload this to npm tomorrow)
 2. `composer install TODO` (still TODO)
-3. In your project create a blade view, which can be a (Livewire) component.
-4. Create a `.js` or `.css` with the same name (minus the .blade. part) next to it.
+3. Create a blade view (`x.blade.php`), with accompanying script (`x.js`) and style files (`x.css` OR `x.scss`) of the same name:
+    ```html
+    <!-- example.blade.php -->
+    @scope
+    <p>
+        Paragraphs in this component are blue.
+    </p>
+    @endscope
+    ```
+
+    ```js
+    // example.js
+    
+    ```
+
+    ```scss
+    // example.scss
+    p {
+        color: blue;
+
+        span {
+            font-weight: bold;
+        }
+    }
+    ```
+4. In your layout view (e.g: `resources/views/layouts/app.blade.php`) place `@stack('scoped-scripts')` and `@stack('scoped-styles')` to mark where scoped scripts and styles (respectively) are placed.
 5. Modify `webpack.mix.js`:
     ```js
     const mix = require('laravel-mix');
-
     require('laravel-scoped-views');
 
     mix.scoped({
-        // @see README#configuration
+        // @see README#configuration for more options
+        includeSass: true,
     });
     ```
 5. Run `npm run dev` to compile the scripts and styles to the `public/views/...` directory.
 6. All views will check for the existence of these files when they're compiled and include them automatically.
-8. In your layout view (e.g: [`layouts/app.blade.php`](resources/views/layouts/app.blade.php)) place `@stack('scoped-scripts')` and `@stack('scoped-styles')` to mark where scripts and styles (respectively) are placed.
+
 9. You can accompany your layout view with a scoped `.css` and `.js` in the same way. But you probably don't want to scope the css in your layout, so put `/* !allGlobal */` at the top of your layout css file ([see example](resources/views/layouts/app.css)) to disable scoping.
 
 

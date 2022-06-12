@@ -19,18 +19,17 @@ class ScopedViewsPlugin {
                 resources: 'resources',
                 public: 'public',
                 views: 'views',
-                tmp: '.mix-tmp',
             },
             clearViewCache: true,
             includeSass: false,
             handlers: [
                 [
-                    /\.css$/,
-                    require('./handlers/css')
-                ],
-                [
                     /\.s[ac]ss$/,
                     require('./handlers/sass')
+                ],
+                [
+                    /\.css$/,
+                    require('./handlers/css')
                 ],
                 [
                     /\.js$/,
@@ -46,7 +45,6 @@ class ScopedViewsPlugin {
         this.config.paths.resources = this.config.paths.resources.replace(/\/$/, '');
         this.config.paths.public = this.config.paths.public.replace(/\/$/, '');
         this.config.paths.views = this.config.paths.views.replace(/\/$/, '');
-        this.config.paths.tmp = this.config.paths.tmp.replace(/\/$/, '');
 
         if (this.config.clearViewCache === true) {
             const { exec } = require('child_process');

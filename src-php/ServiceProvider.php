@@ -48,7 +48,7 @@ class ServiceProvider extends BaseServiceProvider
         }
 
         // Include script and css files adjecent to the view
-        function getAssetIncludes($path)
+        function getAssetIncludes($path, $safePath)
         {
             $includes = '';
 
@@ -58,7 +58,7 @@ class ServiceProvider extends BaseServiceProvider
                 $scriptFile = asset($scriptFile);
                 $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
 
-                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer></script>')";
+                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-self=\"$safePath\"></script>')";
             }
 
             $styleFile = str_replace('.blade.php', '.css', $path);
@@ -86,11 +86,11 @@ class ServiceProvider extends BaseServiceProvider
             $safePath = str_replace(['/', '\\'], '-', $safePath);
             $view->with('safeViewPath', $safePath);
 
-            $view->getEngine()->getCompiler()->precompiler(function ($value) use ($view, $path, &$handledViews) {
+            $view->getEngine()->getCompiler()->precompiler(function ($value) use ($view, $path, $safePath, &$handledViews) {
                 $viewName = $view->getName();
                 if (!in_array($viewName, $handledViews)) {
                     $handledViews[] = $viewName;
-                    $includes = getAssetIncludes($path);
+                    $includes = getAssetIncludes($path, $safePath);
 
                     return "$includes $value";
                 } else {

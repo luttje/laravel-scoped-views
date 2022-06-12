@@ -1,18 +1,47 @@
+const FileCollection = require('laravel-mix/src/FileCollection');
+const Task = require('laravel-mix/src/tasks/Task');
+const File = require('laravel-mix/src/File');
 const fs = require('fs');
 
-module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
-    const postcss = require('postcss');
-    const prefixer = require('postcss-prefix-selector');
+class CompilePostCssTask extends Task {
+    constructor(resourcePath, publicPath, uniqueName, mix, plugin) {
+        super();
 
-    mix.postCss(
-        resourcePath,
-        publicPath,
-        [
-            prefixer({
-                prefix: `[data-scoped-${uniqueName}]`,
+        this.resourcePath = resourcePath;
+        this.publicPath = publicPath;
+        this.uniqueName = uniqueName;
+        this.mix = mix;
+        this.plugin = plugin;
 
-                transform: function (prefix, selector, prefixedSelector, file) {
-                    const rootNode = postcss.parse(fs.readFileSync(file)).first;
+        // Files to watch
+        this.files = new FileCollection([this.resourcePath]);
+
+        // Compiled Assets
+        const file = new File(this.publicPath);
+        this.assets = [
+            file
+        ];
+    }
+
+    run() {
+        this.compile();
+    }
+
+    onChange(updatedFile) {
+        this.compile();
+    }
+
+    compile() {
+        const postcss = require('postcss');
+        const prefixer = require('postcss-prefix-selector');
+        const file = fs.readFileSync(this.resourcePath);
+
+        const resultingCss = postcss()
+            .use(prefixer({
+                prefix: `[data-scoped-${this.uniqueName}]`,
+
+                transform: function (prefix, selector, prefixedSelector) {
+                    const rootNode = postcss.parse(file).first;
 
                     if (rootNode.type === 'comment' && rootNode.text.trim().toLowerCase() === '!allglobal') {
                         return selector;
@@ -20,7 +49,14 @@ module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
                         return prefixedSelector;
                     }
                 }
-            })
-        ]
-    );
+            }))
+            .process(file)
+            .css;
+
+        fs.writeFileSync(this.publicPath, resultingCss);
+    }
+}
+
+module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
+    Mix.addTask(new CompilePostCssTask(resourcePath, publicPath, uniqueName, mix, plugin));
 }

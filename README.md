@@ -15,6 +15,16 @@ This is a different (and simpler) approach from my other recent experiment which
 2. `composer install TODO` (still TODO)
 3. In your project create a blade view, which can be a (Livewire) component.
 4. Create a `.js` or `.css` with the same name (minus the .blade. part) next to it.
+5. Modify `webpack.mix.js`:
+    ```js
+    const mix = require('laravel-mix');
+
+    require('laravel-scoped-views');
+
+    mix.scoped({
+        // @see README#configuration
+    });
+    ```
 5. Run `npm run dev` to compile the scripts and styles to the `public/views/...` directory.
 6. All views will check for the existence of these files when they're compiled and include them automatically.
 8. In your layout view (e.g: [`layouts/app.blade.php`](resources/views/layouts/app.blade.php)) place `@stack('scoped-scripts')` and `@stack('scoped-styles')` to mark where scripts and styles (respectively) are placed.

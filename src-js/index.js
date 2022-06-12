@@ -1,10 +1,8 @@
 const mix = require('laravel-mix');
-const fs = require('fs');
-const merge = require('lodash.merge');
 
 class ScopedViewsPlugin {
     dependencies() {
-        const dependencies = ['lodash.merge', 'postcss', 'postcss-prefix-selector'];
+        const dependencies = ['postcss', 'postcss-prefix-selector'];
 
         if (this.config.includeSass) {
             dependencies.push('sass-loader');
@@ -41,7 +39,8 @@ class ScopedViewsPlugin {
             ],
         };
 
-        this.config = merge(defaultConfig, config);
+        const mergeConfig = require('./utils/merge-deep');
+        this.config = mergeConfig(defaultConfig, config);
 
         // Sanitize the config
         this.config.paths.resources = this.config.paths.resources.replace(/\/$/, '');
@@ -86,6 +85,7 @@ class ScopedViewsPlugin {
 
     // Recursively iterate the views directory and copy all css and js files to the public directory
     includeResourcesFolder(directory) {
+        const fs = require('fs');
         const fileOrFolders = fs.readdirSync(this.resourcePath(directory));
 
         fileOrFolders.forEach(fileOrFolder => {

@@ -1,8 +1,8 @@
 # Laravel Scoped Views
 
 [![GitHub license](https://img.shields.io/github/license/luttje/laravel-scoped-views)](https://github.com/luttje/laravel-scoped-views/blob/main/LICENSE) 
-![npm](https://img.shields.io/npm/v/laravel-scoped-views) 
-![Packagist Version](https://img.shields.io/packagist/v/luttje/laravel-scoped-views)
+[![npm](https://img.shields.io/npm/v/laravel-scoped-views)](https://www.npmjs.com/package/laravel-scoped-views)
+[![Packagist Version](https://img.shields.io/packagist/v/luttje/laravel-scoped-views)](https://packagist.org/packages/luttje/laravel-scoped-views)
 
 > 📛 **Scope view/component styles by pre-processing (s)css files.** Meaning that styles belonging to a view/component won't leak out into the rest of the page.
 

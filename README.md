@@ -1,10 +1,14 @@
 # Laravel Scoped Views
 
-This package can scope view/component styles by pre-processing (s)css files. With "to scope" we mean that styles specified in a child component won't leak out into the rest of the page. 
+[![GitHub license](https://img.shields.io/github/license/luttje/laravel-scoped-views)](https://github.com/luttje/laravel-scoped-views/blob/main/LICENSE) 
+![npm](https://img.shields.io/npm/v/laravel-scoped-views) 
+![Packagist Version](https://img.shields.io/packagist/v/luttje/laravel-scoped-views)
 
-When Laravel Mix is run (`npm run dev`/`watch`/`prod`) a unique attribute is prefixed to each selector. The same attribute is added to the component.
+> 📛 **Scope view/component styles by pre-processing (s)css files.** Meaning that styles belonging to a view/component won't leak out into the rest of the page.
 
-![](.github/resulting-html.png)
+> 🤖 **How?** When Laravel Mix is run (`npm run dev`/`watch`/`prod`) a unique attribute is prefixed to each selector. The same attribute is added to the component:
+> 
+> ![](.github/resulting-html.png)
 
 
 ## Installation

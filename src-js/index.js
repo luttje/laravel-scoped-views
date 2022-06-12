@@ -1,20 +1,53 @@
-let mix = require('laravel-mix');
-let fs = require('fs');
+const mix = require('laravel-mix');
+const fs = require('fs');
+const merge = require('lodash.merge');
 
 class ScopedViewsPlugin {
     dependencies() {
-        return ['postcss-prefix-selector'];
+        const dependencies = ['lodash.merge', 'postcss', 'postcss-prefix-selector'];
+
+        if (this.config.includeSass) {
+            dependencies.push('sass-loader');
+            dependencies.push('node-sass');
+            dependencies.push('@csstools/postcss-sass');
+        }
+
+        return dependencies;
     }
 
     register(config) {
-        this.config = {
+        const defaultConfig = {
             paths: {
-                resources: (config?.paths?.resources || 'resources').replace(/\/$/, ''),
-                public: (config?.paths?.public || 'public').replace(/\/$/, ''),
-                views: (config?.paths?.views || 'views').replace(/\/$/, ''),
+                resources: 'resources',
+                public: 'public',
+                views: 'views',
+                tmp: '.mix-tmp',
             },
-            clearViewCache: config?.clearViewCache || true
+            clearViewCache: true,
+            includeSass: false,
+            handlers: [
+                [
+                    /\.css$/,
+                    require('./handlers/css')
+                ],
+                [
+                    /\.s[ac]ss$/,
+                    require('./handlers/sass')
+                ],
+                [
+                    /\.js$/,
+                    require('./handlers/js')
+                ],
+            ],
         };
+
+        this.config = merge(defaultConfig, config);
+
+        // Sanitize the config
+        this.config.paths.resources = this.config.paths.resources.replace(/\/$/, '');
+        this.config.paths.public = this.config.paths.public.replace(/\/$/, '');
+        this.config.paths.views = this.config.paths.views.replace(/\/$/, '');
+        this.config.paths.tmp = this.config.paths.tmp.replace(/\/$/, '');
 
         if (this.config.clearViewCache === true) {
             const { exec } = require('child_process');
@@ -36,35 +69,19 @@ class ScopedViewsPlugin {
     }
 
     includeFile(path) {
-        const postcss = require('postcss');
-        const prefixer = require('postcss-prefix-selector');
+        let uniqueName = path.substring(0, path.lastIndexOf('.'));
+        uniqueName = uniqueName.replace(/[\/\.]/g, '-');
 
-        let safePath = path.substring(0, path.lastIndexOf('.'));
-        safePath = safePath.replace(/[\/\.]/g, '-');
-
-        if (path.endsWith('.css')) {
-            mix.postCss(
-                this.resourcePath(path),
-                this.publicPath(path),
-                [
-                    prefixer({
-                        prefix: `[data-scoped-${safePath}]`,
-
-                        transform: function (prefix, selector, prefixedSelector, file) {
-                            const rootNode = postcss.parse(fs.readFileSync(file)).first;
-
-                            if (rootNode.type === 'comment' && rootNode.text.trim().toLowerCase() === '!allglobal') {
-                                return selector;
-                            } else {
-                                return prefixedSelector;
-                            }
-                        }
-                    })
-                ]
-            );
-        } else if (path.endsWith('.js')) {
-            mix.js(this.resourcePath(path), this.publicPath(path));
-        }
+        this.config.handlers.forEach(handler => {
+            if (handler[0].test(path)) {
+                handler[1](
+                    this.resourcePath(path),
+                    this.publicPath(path),
+                    uniqueName,
+                    mix,
+                    this);
+            }
+        });
     }
 
     // Recursively iterate the views directory and copy all css and js files to the public directory

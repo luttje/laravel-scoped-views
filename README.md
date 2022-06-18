@@ -10,21 +10,27 @@
 > 
 > ![](.github/resulting-html.png)
 
+> 🔨 **All features**
+> - Compile CSS and Sass belonging to views to separate files in your public directory.
+> - Automatically include those files when their view needs them.
+> - Easily inline style rules by annotating them with CSS comments.
+
 
 ## Installation
 
-You need to install this package using both [composer](https://getcomposer.org/) and [npm](https://nodejs.org/en/download/):
+In most situations you need to install this package using both [composer](https://getcomposer.org/) and [npm](https://nodejs.org/en/download/):
 
-1. Install this package for Laravel (PHP) using:
-    ```bash
-    composer require luttje/laravel-scoped-views
-    ```
-
-2. Install this package for Laravel Mix (Javascript) using:
+1. Install this package for Laravel Mix (Javascript) using:
     ```bash
     npm install laravel-scoped-views --save-dev
     ```
 
+2. Install this package for Laravel (PHP) using:
+    ```bash
+    composer require luttje/laravel-scoped-views
+    ```
+    _If you want to include the compiled css and js files manually you can skip using this composer package._
+    
 
 ## Basic Usage
 
@@ -126,15 +132,33 @@ You can configure css and js deferring, and the names of the stacks in `config/s
 Run `php artisan vendor:publish --provider="Luttje\ScopedViews\ServiceProvider"` to publish that config file to your project.
 
 
-## Notes
+## Magic Style Annotations
+
+The npm package has some additional features that can be activated by adding comments to a file or specific style rule. 
+
+**All annotations must be a valid JSON object ([validate here](https://jsonlint.com/)).** Annotations can be combined by placing them in in the same object. E.g:
+```css
+/* { "global": true, "inline": true } */
+.do-not-scope-but-do-inline-in-page {
+    color: red;
+}
+```
 
 ### Global layout style
-A layout view is treated exactly as a normal view. This means you can accompany a layout with `.js` and `.css` (or `.scss`) of the same name. However you likely don't want to scope the css to just your layout. Disable scoping by placing `/* !allGlobal */` on the first line of the css file.
+A layout view is treated exactly as a normal view. This means you can accompany a layout with `.js` and `.css` (or `.scss`) of the same name. However you likely don't want to scope the css to just your layout. Disable scoping by placing `/* { "allGlobal": true } */` on the first line of the css file. 
 
 
 ### Specifically global rules
-You shouldn't want component rules to leak out into the global page style. But if for whatever reason you do want this, you can add `/* !global */` above a single rule to make it global.
+You shouldn't want component rules to leak out into the global page style. But if for whatever reason you do want this, you can add `/* { "global": true } */` above a single rule to make it global. 
 
+
+### Inlining a rule
+With this package you can also choose to inline certain rules into the HTML of the page. To do that you can add either `/* { "allInline": true } */` at the top of the file OR `/* { "inline": true } */` to a specific rule. These rules will be compiled to a seperate file (`<filename>.inline.css`) and injected into the page when Blade compiles its views. 
+
+**Note: Because the styles are injected on Blade View compilation, you will have to clear the view cache on changes to your style!** (`php artisan view:clear`)
+
+
+## Notes
 
 ### Clear your cache
 - **You have to clear your view cache if you add .js and .css files**

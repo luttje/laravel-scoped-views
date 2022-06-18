@@ -17,7 +17,8 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/scopedblade.php', 'scopedblade'
+            __DIR__ . '/../config/scopedblade.php',
+            'scopedblade'
         );
     }
 
@@ -29,7 +30,7 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/scopedblade.php' => config_path('scopedblade.php'),
+            __DIR__ . '/../config/scopedblade.php' => config_path('scopedblade.php'),
         ]);
 
         $this->registerViewOverrides();
@@ -58,7 +59,7 @@ class ServiceProvider extends BaseServiceProvider
                 $scriptFile = asset($scriptFile);
                 $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
 
-                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-parent=\"$safePath\"></script>')";
+                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-parent=\"$safePath\"></script>')\n";
             }
 
             $styleFile = str_replace('.blade.php', '.css', $path);
@@ -71,16 +72,31 @@ class ServiceProvider extends BaseServiceProvider
                     <link rel="preload" href="$styleFile" as="style" onload="this.onload=null;this.rel='stylesheet'">
                     <noscript><link rel="stylesheet" href="$styleFile"></noscript>
                     CSS_COMPONENT_STRING;
-                    $includes .= "@push('$stackName') $cssComponent @endpush";
+                    $includes .= "@push('$stackName') $cssComponent @endpush\n";
                 } else {
-                    $includes .= "@push('$stackName', '<link rel=\"stylesheet\" href=\"$styleFile\">')";
+                    $includes .= "@push('$stackName', '<link rel=\"stylesheet\" href=\"$styleFile\">')\n";
+                }
+            }
+
+            $inlineStyleFile = str_replace('.blade.php', '.inline.css', $path);
+            if (File::exists(public_path($inlineStyleFile))) {
+                $stackName = config('scopedblade.stack_name_css');
+                $inlineStyleFileContents = File::get(public_path($inlineStyleFile));
+
+                if (!empty($inlineStyleFileContents)) {
+                    $cssComponent = <<<CSS_COMPONENT_STRING
+                    <style>
+                        $inlineStyleFileContents
+                    </style>
+                    CSS_COMPONENT_STRING;
+                    $includes .= "@push('$stackName') $cssComponent @endpush\n";
                 }
             }
 
             return $includes;
         }
 
-        View::composer('*', function ($view) use(&$handledViews) {
+        View::composer('*', function ($view) use (&$handledViews) {
             $path = viewToCompiledPath($view->getPath());
             $safePath = substr($path, 0, -strlen('.blade.php'));
             $safePath = str_replace(['/', '\\'], '-', $safePath);
@@ -105,7 +121,7 @@ class ServiceProvider extends BaseServiceProvider
         Blade::directive('scope', function ($attributesJson = '{}') {
             $attributes = '';
 
-            if($attributesJson) {
+            if ($attributesJson) {
                 $attributes = json_decode($attributesJson, true);
                 $attributes = implode(' ', array_map(function ($key, $value) {
                     $value = str_replace('"', '\\"', $value);

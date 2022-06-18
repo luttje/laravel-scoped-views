@@ -41,10 +41,12 @@ class CompilePostCssTask extends Task {
             .use(prefixer({
                 prefix: `[data-scope="${this.uniqueName}"]`,
 
-                transform: function (prefix, selector, prefixedSelector) {
-                    const rootNode = postcss.parse(file).first;
+                transform: function (prefix, selector, prefixedSelector, filePath, rule) {
+                    const rootNode = rule.root().first;
+                    const previousNode = rule.prev();
 
-                    if (rootNode.type === 'comment' && rootNode.text.trim().toLowerCase() === '!allglobal') {
+                    if ((rootNode?.type === 'comment' && rootNode.text.trim().toLowerCase() === '!allglobal')
+                        || (previousNode?.type === 'comment' && previousNode.text.trim().toLowerCase() === '!global')) {
                         return selector;
                     } else {
                         return prefixedSelector;

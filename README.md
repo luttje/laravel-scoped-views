@@ -132,6 +132,10 @@ Run `php artisan vendor:publish --provider="Luttje\ScopedViews\ServiceProvider"`
 A layout view is treated exactly as a normal view. This means you can accompany a layout with `.js` and `.css` (or `.scss`) of the same name. However you likely don't want to scope the css to just your layout. Disable scoping by placing `/* !allGlobal */` on the first line of the css file.
 
 
+### Specifically global rules
+You shouldn't want component rules to leak out into the global page style. But if for whatever reason you do want this, you can add `/* !global */` above a single rule to make it global.
+
+
 ### Clear your cache
 - **You have to clear your view cache if you add .js and .css files**
 By default running `npm run dev` will automatically clear view cache. If you disable this configuration (`mix.scoped({ clearViewCache: false }`) you have to run `php artisan view:clear` manually.

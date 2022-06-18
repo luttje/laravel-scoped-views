@@ -1,6 +1,6 @@
 {
     "name": "laravel-scoped-views",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Scope CSS and JS in Laravel, using the blade directives @scope and @endscope. This npm package extends Laravel mix.",
     "license": "MIT",
     "keywords": [
@@ -29,7 +29,7 @@
     "devDependencies": {
         "laravel-mix": "^6.0.49",
         "postcss": "^8.4.14",
-        "postcss-prefix-selector": "^1.15.0"
+        "postcss-prefix-selector": "^1.16.0"
     },
     "optionalDependencies": {
         "sass-loader": "^7.3.1",

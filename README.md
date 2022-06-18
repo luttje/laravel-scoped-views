@@ -111,7 +111,7 @@ mix.scoped({
     // Should Sass be compiled? (Enabling this will automatically install dependencies the first time Mix runs)
     includeSass: false,
 
-    // Contains an array extensions to handle for each view. Check `src-js/handlers` for the defaults (js, css, scss).
+    // Contains an array extensions to handle for each view. Check `src/js/handlers` for the defaults (js, css, scss).
     handlers: {
         text: [
             // If a file in resources matches this regex, the function will be called
@@ -124,7 +124,7 @@ mix.scoped({
     }
 });
 ```
-*If you do not specify an option, the defaults will be used. See [src-js/index.js](src-js/index.js) for the default configurations.*
+*If you do not specify an option, the defaults will be used. See [src/js/index.js](src/js/index.js) for the default configurations.*
 
 
 ### Configuring the Service Provider

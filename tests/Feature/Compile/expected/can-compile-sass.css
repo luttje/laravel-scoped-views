@@ -1,0 +1,4 @@
+[data-scope="views-can-compile-sass"] p {
+  color: red; }
+  [data-scope="views-can-compile-sass"] p .class-modifier {
+    font-weight: bolder; }

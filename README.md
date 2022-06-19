@@ -100,6 +100,7 @@ The `mix.scoped()` function accepts a single object with configuration options:
 mix.scoped({
     // Directory paths (defaults will work for 99% of Laravel installations)
     paths: {
+        base: null, // Defaults to root of Laravel project
         resources: 'resources',
         views: 'views',
         public: 'public',
@@ -174,3 +175,11 @@ var myScopeAttribute = document.currentScript.getAttribute('data-scope-parent');
 var myScopedElement = document.querySelector(`[data-scope="${myScopeAttribute}"]`);
 console.log(myScopedElement);
 ```
+
+
+## Contributing
+
+1. `composer install`
+2. `npm install`
+3. `./vendor/bin/dusk-updater detect --auto-update`
+4. Execute the tests with `./vendor/bin/phpunit`

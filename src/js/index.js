@@ -16,6 +16,7 @@ class ScopedViewsPlugin {
     register(config) {
         const defaultConfig = {
             paths: {
+                base: null,
                 resources: 'resources',
                 public: 'public',
                 views: 'views',
@@ -41,10 +42,14 @@ class ScopedViewsPlugin {
         const mergeConfig = require('./utils/merge-deep');
         this.config = mergeConfig(defaultConfig, config);
 
-        // Sanitize the config
+        // Sanitize the config by removing trailing slashes
         this.config.paths.resources = this.config.paths.resources.replace(/\/$/, '');
         this.config.paths.public = this.config.paths.public.replace(/\/$/, '');
         this.config.paths.views = this.config.paths.views.replace(/\/$/, '');
+
+        // Ensure trailing slash
+        if(this.config.paths.base !== null)
+            this.config.paths.base = this.config.paths.base.replace(/\/$/, '') + '/';
 
         if (this.config.clearViewCache === true) {
             const { exec } = require('child_process');
@@ -58,11 +63,11 @@ class ScopedViewsPlugin {
     }
 
     resourcePath(path) {
-        return `${this.config.paths.resources}/${path}`;
+        return `${this.config.paths.base}${this.config.paths.resources}/${path}`;
     }
 
     publicPath(path) {
-        return `${this.config.paths.public}/${path}`;
+        return `${this.config.paths.base}${this.config.paths.public}/${path}`;
     }
 
     includeFile(path) {

@@ -38,6 +38,8 @@ class CompilePostCssTask extends Task {
     compile() {
         const postcss = require('postcss');
         const prefixer = require('postcss-prefix-selector');
+        const path = require('path');
+
         const file = fs.readFileSync(this.resourcePath);
         const inlineRoot = postcss.root();
 
@@ -64,6 +66,9 @@ class CompilePostCssTask extends Task {
             .process(file)
             .css;
 
+        fs.mkdirSync(path.dirname(this.publicPath), { recursive: true }, (err) => {
+            if (err) throw err;
+        });
         fs.writeFileSync(this.publicInlinePath, inlineRoot.toString());
         fs.writeFileSync(this.publicPath, resultingCss);
     }

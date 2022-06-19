@@ -37,67 +37,74 @@ class ServiceProvider extends BaseServiceProvider
         $this->registerBladeDirectives();
     }
 
+    // To prevent double including css and js files, store which views have been processed
+    private $handledViews = [];
+
+    private function viewToCompiledPath($viewPath)
+    {
+        $resourcePath = resource_path();
+
+        if (str_starts_with($viewPath, $resourcePath)) {
+            // Also trims leading path seperator (+1)
+            return substr($viewPath, strlen($resourcePath) + 1);
+        }
+
+        return basename($viewPath);
+    }
+
+    // Include script and css files adjecent to the view
+    private function getAssetIncludes($path, $safePath)
+    {
+        $includes = '';
+
+        $scriptFile = str_replace('.blade.php', '.js', $path);
+        if (File::exists(public_path($scriptFile))) {
+            $stackName = config('scopedblade.stack_name_js');
+            $scriptFile = asset($scriptFile);
+            $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
+
+            $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-parent=\"$safePath\"></script>')\n";
+        }
+
+        $styleFile = str_replace('.blade.php', '.css', $path);
+        if (File::exists(public_path($styleFile))) {
+            $stackName = config('scopedblade.stack_name_css');
+            $styleFile = asset($styleFile);
+
+            if (config('scopedblade.defer_css') === true) {
+                $cssComponent = <<<CSS_COMPONENT_STRING
+                <link rel="preload" href="$styleFile" as="style" onload="this.onload=null;this.rel='stylesheet'">
+                <noscript><link rel="stylesheet" href="$styleFile"></noscript>
+                CSS_COMPONENT_STRING;
+                $includes .= "@push('$stackName') $cssComponent @endpush\n";
+            } else {
+                $includes .= "@push('$stackName', '<link rel=\"stylesheet\" href=\"$styleFile\">')\n";
+            }
+        }
+
+        $inlineStyleFile = str_replace('.blade.php', '.inline.css', $path);
+        if (File::exists(public_path($inlineStyleFile))) {
+            $stackName = config('scopedblade.stack_name_css');
+            $inlineStyleFileContents = File::get(public_path($inlineStyleFile));
+
+            if (!empty($inlineStyleFileContents)) {
+                $cssComponent = <<<CSS_COMPONENT_STRING
+                <style>
+                    $inlineStyleFileContents
+                </style>
+                CSS_COMPONENT_STRING;
+                $includes .= "@push('$stackName') $cssComponent @endpush\n";
+            }
+        }
+
+        return $includes;
+    }
+
     protected function registerViewOverrides()
     {
-        // To prevent double including css and js files
-        $handledViews = [];
-
-        function viewToCompiledPath($viewPath)
-        {
-            // Also trims leading path seperator
-            return substr($viewPath, strlen(resource_path()) + 1);
-        }
-
-        // Include script and css files adjecent to the view
-        function getAssetIncludes($path, $safePath)
-        {
-            $includes = '';
-
-            $scriptFile = str_replace('.blade.php', '.js', $path);
-            if (File::exists(public_path($scriptFile))) {
-                $stackName = config('scopedblade.stack_name_js');
-                $scriptFile = asset($scriptFile);
-                $defer = config('scopedblade.defer_js') === true ? 'defer' : '';
-
-                $includes .= "@push('$stackName', '<script src=\"$scriptFile\" $defer data-scope-parent=\"$safePath\"></script>')\n";
-            }
-
-            $styleFile = str_replace('.blade.php', '.css', $path);
-            if (File::exists(public_path($styleFile))) {
-                $stackName = config('scopedblade.stack_name_css');
-                $styleFile = asset($styleFile);
-
-                if (config('scopedblade.defer_css') === true) {
-                    $cssComponent = <<<CSS_COMPONENT_STRING
-                    <link rel="preload" href="$styleFile" as="style" onload="this.onload=null;this.rel='stylesheet'">
-                    <noscript><link rel="stylesheet" href="$styleFile"></noscript>
-                    CSS_COMPONENT_STRING;
-                    $includes .= "@push('$stackName') $cssComponent @endpush\n";
-                } else {
-                    $includes .= "@push('$stackName', '<link rel=\"stylesheet\" href=\"$styleFile\">')\n";
-                }
-            }
-
-            $inlineStyleFile = str_replace('.blade.php', '.inline.css', $path);
-            if (File::exists(public_path($inlineStyleFile))) {
-                $stackName = config('scopedblade.stack_name_css');
-                $inlineStyleFileContents = File::get(public_path($inlineStyleFile));
-
-                if (!empty($inlineStyleFileContents)) {
-                    $cssComponent = <<<CSS_COMPONENT_STRING
-                    <style>
-                        $inlineStyleFileContents
-                    </style>
-                    CSS_COMPONENT_STRING;
-                    $includes .= "@push('$stackName') $cssComponent @endpush\n";
-                }
-            }
-
-            return $includes;
-        }
-
+        $handledViews = &$this->handledViews;
         View::composer('*', function ($view) use (&$handledViews) {
-            $path = viewToCompiledPath($view->getPath());
+            $path = $this->viewToCompiledPath($view->getPath());
             $safePath = substr($path, 0, -strlen('.blade.php'));
             $safePath = str_replace(['/', '\\'], '-', $safePath);
             $view->with('safeViewPath', $safePath);
@@ -106,7 +113,7 @@ class ServiceProvider extends BaseServiceProvider
                 $viewName = $view->getName();
                 if (!in_array($viewName, $handledViews)) {
                     $handledViews[] = $viewName;
-                    $includes = getAssetIncludes($path, $safePath);
+                    $includes = $this->getAssetIncludes($path, $safePath);
 
                     return "$includes $value";
                 } else {

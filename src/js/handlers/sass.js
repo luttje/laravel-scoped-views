@@ -12,7 +12,8 @@ class CompileSassTask extends Task {
         const pathWithoutExt = resourcePath.substring(0, resourcePath.lastIndexOf('.'));
 
         const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luttje-scoped-views-'));
-        this.outFile = path.join(outDir, `${pathWithoutExt}.css`);
+        // remove drive colon from path
+        this.outFile = path.join(outDir, `${pathWithoutExt.replace(/:/g, '')}.css`);
         this.resourcePath = resourcePath;
 
         publicPath = publicPath.substring(0, publicPath.lastIndexOf('.'));

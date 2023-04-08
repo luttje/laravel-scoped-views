@@ -1,8 +1,12 @@
-# Laravel Scoped Views
+# ⚠ Abandoned | Laravel Scoped Views
 
 [![GitHub license](https://img.shields.io/github/license/luttje/laravel-scoped-views)](https://github.com/luttje/laravel-scoped-views/blob/main/LICENSE) 
-[![npm](https://img.shields.io/npm/v/laravel-scoped-views)](https://www.npmjs.com/package/laravel-scoped-views)
-[![Packagist Version](https://img.shields.io/packagist/v/luttje/laravel-scoped-views)](https://packagist.org/packages/luttje/laravel-scoped-views)
+
+> **Warning**
+> This package is no longer maintained. You should use a front-end framework or build your own variant of this package. 
+> Perhaps [this PR](https://github.com/luttje/laravel-scoped-views/pull/1) and [this package](https://github.com/luttje/laravel-scoped-components) will be of use to you.
+
+<hr>
 
 > 📛 **Scope view/component styles by pre-processing (s)css files.** Meaning that styles belonging to a view/component won't leak out into the rest of the page.
 
@@ -14,23 +18,6 @@
 > - Compile CSS and Sass belonging to views to separate files in your public directory.
 > - Automatically include those files when their view needs them.
 > - Easily inline style rules by annotating them with CSS comments.
-
-
-## Installation
-
-In most situations you need to install this package using both [composer](https://getcomposer.org/) and [npm](https://nodejs.org/en/download/):
-
-1. Install this package for Laravel Mix (Javascript) using:
-    ```bash
-    npm install laravel-scoped-views --save-dev
-    ```
-
-2. Install this package for Laravel (PHP) using:
-    ```bash
-    composer require luttje/laravel-scoped-views
-    ```
-    _If you want to include the compiled css and js files manually you can skip using this composer package._
-    
 
 ## Basic Usage
 

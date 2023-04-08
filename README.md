@@ -24,11 +24,11 @@
 1. Create a blade view (`x.blade.php`), with accompanying script (`x.js`) and style files (`x.css` OR `x.scss`) of the same name:
     ```html
     <!-- resources/views/components/example.blade.php -->
-    @scope
-    <p>
-        Paragraphs in this component are blue.
-    </p>
-    @endscope
+    <x-scoped>
+        <p>
+            Paragraphs in this component are blue.
+        </p>
+    </x-scoped>
     ```
     ```scss
     // resources/views/components/example.scss
@@ -87,9 +87,9 @@ The `mix.scoped()` function accepts a single object with configuration options:
 mix.scoped({
     // Directory paths (defaults will work for 99% of Laravel installations)
     paths: {
-        resources: 'resources',
-        views: 'views',
-        public: 'public',
+        base: null, // Defaults to root of Laravel project
+        views: 'resources/views',
+        compiledViews: 'storage/app/scoped-views',
     },
 
     // Whether to automatically run `php artisan view:clear` after compilation
@@ -98,7 +98,7 @@ mix.scoped({
     // Should Sass be compiled? (Enabling this will automatically install dependencies the first time Mix runs)
     includeSass: false,
 
-    // Contains an array extensions to handle for each view. Check `src-js/handlers` for the defaults (js, css, scss).
+    // Contains an array extensions to handle for each view. Check `src/js/handlers` for the defaults (js, css, scss).
     handlers: {
         text: [
             // If a file in resources matches this regex, the function will be called
@@ -111,7 +111,7 @@ mix.scoped({
     }
 });
 ```
-*If you do not specify an option, the defaults will be used. See [src-js/index.js](src-js/index.js) for the default configurations.*
+*If you do not specify an option, the defaults will be used. See [src/js/index.js](src/js/index.js) for the default configurations.*
 
 
 ### Configuring the Service Provider
@@ -161,3 +161,11 @@ var myScopeAttribute = document.currentScript.getAttribute('data-scope-parent');
 var myScopedElement = document.querySelector(`[data-scope="${myScopeAttribute}"]`);
 console.log(myScopedElement);
 ```
+
+
+## Contributing
+
+1. `composer install`
+2. `npm install`
+3. `./vendor/bin/dusk-updater detect --auto-update`
+4. Execute the tests with `./vendor/bin/phpunit`

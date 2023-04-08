@@ -1,22 +1,28 @@
 const FileCollection = require('laravel-mix/src/FileCollection');
-const Task = require('laravel-mix/src/tasks/Task');
 const File = require('laravel-mix/src/File');
+const Handler = require('./handler');
 const path = require('path');
 const fs = require('fs');
 
-class CompileSassTask extends Task {
+class CompileSassTask extends Handler {
     constructor(resourcePath, publicPath, uniqueName, mix, plugin) {
-        super();
+        if (!plugin.config.includeSass) {
+            console.warn(`${resourcePath} file was discovered, but Sass was not configured to be used.`);
+            console.warn('Did you forget to configure `mix.scoped({ includeSass: true })`?');
+            return;
+        }
+
+        super(resourcePath, publicPath, uniqueName, mix, plugin);
 
         const os = require('os');
         const pathWithoutExt = resourcePath.substring(0, resourcePath.lastIndexOf('.'));
 
         const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luttje-scoped-views-'));
-        this.outFile = path.join(outDir, `${pathWithoutExt}.css`);
+        // remove drive colon from path
+        this.outFile = path.join(outDir, `${pathWithoutExt.replace(/:/g, '')}.css`);
         this.resourcePath = resourcePath;
 
-        publicPath = publicPath.substring(0, publicPath.lastIndexOf('.'));
-        this.publicPath = `${publicPath}.css`;
+        this.publicPath = this.getTransformedName(publicPath)
 
         this.uniqueName = uniqueName;
         this.mix = mix;
@@ -36,6 +42,16 @@ class CompileSassTask extends Task {
         this.assets = [
             file
         ];
+
+        Mix.addTask(this);
+
+        const cls = require('./css');
+        new cls(this.outFile, this.publicPath, uniqueName, mix, plugin);
+    }
+
+    getTransformedName(name) {
+        name = name.substring(0, name.lastIndexOf('.'));
+        return  `${name}.css`;
     }
 
     run() {
@@ -62,15 +78,4 @@ class CompileSassTask extends Task {
     }
 }
 
-module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
-    if (!plugin.config.includeSass) {
-        console.warn(`${resourcePath} file was discovered, but Sass was not configured to be used.`);
-        console.warn('Did you forget to configure `mix.scoped({ includeSass: true })`?');
-        return;
-    }
-
-    const sassTask = new CompileSassTask(resourcePath, publicPath, uniqueName, mix, plugin);
-    Mix.addTask(sassTask);
-
-    require('./css')(sassTask.outFile, sassTask.publicPath, uniqueName, mix, plugin);
-}
+module.exports = CompileSassTask

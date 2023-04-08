@@ -1,11 +1,11 @@
 const FileCollection = require('laravel-mix/src/FileCollection');
-const Task = require('laravel-mix/src/tasks/Task');
 const File = require('laravel-mix/src/File');
+const Handler = require('./handler');
 const fs = require('fs');
 
-class CompilePostCssTask extends Task {
+class CompilePostCssTask extends Handler {
     constructor(resourcePath, publicPath, uniqueName, mix, plugin) {
-        super();
+        super(resourcePath, publicPath, uniqueName, mix, plugin);
 
         this.resourcePath = resourcePath;
         this.publicPath = publicPath;
@@ -24,6 +24,8 @@ class CompilePostCssTask extends Task {
             file,
             inlineFile
         ];
+
+        Mix.addTask(this);
     }
 
     run() {
@@ -38,6 +40,8 @@ class CompilePostCssTask extends Task {
     compile() {
         const postcss = require('postcss');
         const prefixer = require('postcss-prefix-selector');
+        const path = require('path');
+
         const file = fs.readFileSync(this.resourcePath);
         const inlineRoot = postcss.root();
 
@@ -64,6 +68,9 @@ class CompilePostCssTask extends Task {
             .process(file)
             .css;
 
+        fs.mkdirSync(path.dirname(this.publicPath), { recursive: true }, (err) => {
+            if (err) throw err;
+        });
         fs.writeFileSync(this.publicInlinePath, inlineRoot.toString());
         fs.writeFileSync(this.publicPath, resultingCss);
     }
@@ -131,6 +138,4 @@ class CompilePostCssTask extends Task {
     }
 }
 
-module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
-    Mix.addTask(new CompilePostCssTask(resourcePath, publicPath, uniqueName, mix, plugin));
-}
+module.exports = CompilePostCssTask;

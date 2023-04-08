@@ -1,4 +1,4 @@
 {
-    "/tests/Feature/Compile/public/views/can-compile-sass.css": "/tests/Feature/Compile/public/views/can-compile-sass.css",
-    "/tests/Feature/Compile/public/views/can-compile-sass.inline.css": "/tests/Feature/Compile/public/views/can-compile-sass.inline.css"
+    "/tests/Browser/mock/storage/app/scoped-views/test-inject-style-links.css": "/tests/Browser/mock/storage/app/scoped-views/test-inject-style-links.css",
+    "/tests/Browser/mock/storage/app/scoped-views/test-inject-style-links.inline.css": "/tests/Browser/mock/storage/app/scoped-views/test-inject-style-links.inline.css"
 }

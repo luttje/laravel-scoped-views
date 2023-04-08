@@ -37,11 +37,11 @@ In most situations you need to install this package using both [composer](https:
 1. Create a blade view (`x.blade.php`), with accompanying script (`x.js`) and style files (`x.css` OR `x.scss`) of the same name:
     ```html
     <!-- resources/views/components/example.blade.php -->
-    @scope
-    <p>
-        Paragraphs in this component are blue.
-    </p>
-    @endscope
+    <x-scoped>
+        <p>
+            Paragraphs in this component are blue.
+        </p>
+    </x-scoped>
     ```
     ```scss
     // resources/views/components/example.scss
@@ -101,9 +101,8 @@ mix.scoped({
     // Directory paths (defaults will work for 99% of Laravel installations)
     paths: {
         base: null, // Defaults to root of Laravel project
-        resources: 'resources',
-        views: 'views',
-        public: 'public',
+        views: 'resources/views',
+        compiledViews: 'storage/app/scoped-views',
     },
 
     // Whether to automatically run `php artisan view:clear` after compilation

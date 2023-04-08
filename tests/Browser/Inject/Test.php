@@ -11,7 +11,10 @@ class Test extends TestCase
         // TODO: Test if
         $this->browse(function ($browser) {
             $browser->visit(route('test-inject-style-links'))
-                ->assertSee('Testing!');
+            ->script('console.error(document.documentElement.innerHTML)')
+                ->assertSee('Test Inject Style Links')
+                ->assertSee('test-inject-style-links.css')
+                ->assertSee('test-inject-style-links.js');
         });
     }
 }

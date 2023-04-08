@@ -1,27 +1,6 @@
 {
     "name": "laravel-scoped-views",
-    "version": "0.2.0",
-    "description": "Scope CSS and JS in Laravel, using the blade directives @scope and @endscope. This npm package extends Laravel mix.",
-    "license": "MIT",
-    "keywords": [
-        "laravel-mix",
-        "laravel-mix-extension",
-        "webpack",
-        "transpiler",
-        "compiler",
-        "laravel",
-        "scoped",
-        "styles",
-        "css",
-        "scripts"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/luttje/laravel-scoped-views.git"
-    },
-    "bugs": {
-        "url": "https://github.com/luttje/laravel-scoped-views/issues"
-    },
+    "private": true,
     "main": "src-js/index.js",
     "scripts": {
         "test": "echo \"TODO: Write tests\""

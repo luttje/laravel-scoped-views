@@ -1,11 +1,11 @@
 const FileCollection = require('laravel-mix/src/FileCollection');
-const Task = require('laravel-mix/src/tasks/Task');
 const File = require('laravel-mix/src/File');
+const Handler = require('./handler');
 const fs = require('fs');
 
-class CompilePostCssTask extends Task {
+class CompilePostCssTask extends Handler {
     constructor(resourcePath, publicPath, uniqueName, mix, plugin) {
-        super();
+        super(resourcePath, publicPath, uniqueName, mix, plugin);
 
         this.resourcePath = resourcePath;
         this.publicPath = publicPath;
@@ -24,6 +24,8 @@ class CompilePostCssTask extends Task {
             file,
             inlineFile
         ];
+
+        Mix.addTask(this);
     }
 
     run() {
@@ -136,6 +138,4 @@ class CompilePostCssTask extends Task {
     }
 }
 
-module.exports = (resourcePath, publicPath, uniqueName, mix, plugin) => {
-    Mix.addTask(new CompilePostCssTask(resourcePath, publicPath, uniqueName, mix, plugin));
-}
+module.exports = CompilePostCssTask;

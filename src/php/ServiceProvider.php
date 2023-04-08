@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Route;
+use Luttje\ScopedViews\Components\Scoped;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -33,8 +35,9 @@ class ServiceProvider extends BaseServiceProvider
             __DIR__ . '/../../config/scopedblade.php' => config_path('scopedblade.php'),
         ]);
 
+        $this->registerRoutes();
         $this->registerViewOverrides();
-        $this->registerBladeDirectives();
+        $this->registerBladeComponents();
     }
 
     // To prevent double including css and js files, store which views have been processed
@@ -56,6 +59,12 @@ class ServiceProvider extends BaseServiceProvider
     private function getAssetIncludes($path, $safePath)
     {
         $includes = '';
+
+        /*
+        TODO: Replace File::exists with public_path for a check in the manifest. Let the route server the file.
+
+        We do this because Orchestra has an internal laravel installation, we shouldnt rely on the public folder being anywhere relatively.
+        */
 
         $scriptFile = str_replace('.blade.php', '.js', $path);
         if (File::exists(public_path($scriptFile))) {
@@ -123,28 +132,22 @@ class ServiceProvider extends BaseServiceProvider
         });
     }
 
-    protected function registerBladeDirectives()
+    protected function registerBladeComponents()
     {
-        Blade::directive('scope', function ($attributesJson = '{}') {
-            $attributes = '';
+        Blade::component('scoped', Scoped::class);
+    }
 
-            if ($attributesJson) {
-                $attributes = json_decode($attributesJson, true);
-                $attributes = implode(' ', array_map(function ($key, $value) {
-                    $value = str_replace('"', '\\"', $value);
-                    return "$key=\"$value\"";
-                }, array_keys($attributes), $attributes));
+    protected function registerRoutes()
+    {
+        Route::get('/scopedviews/{filename}', function ($filename) {
+            // TODO: Make path configurable and identical in both Laravel mix and PHP
+            $manifest = json_decode(File::get(public_path('views/scopedviews-manifest.json')), true);
+
+            if (!array_key_exists($filename, $manifest)) {
+                abort(404);
             }
 
-            return <<<SCRIPT_ECHO
-            <div data-scope="<?php echo \$safeViewPath; ?>" $attributes>
-            SCRIPT_ECHO;
-        });
-
-        Blade::directive('endscope', function () {
-            return <<<SCRIPT_ECHO
-            </div> <!-- END OF data-scope="<?php echo \$safeViewPath; ?>" -->
-            SCRIPT_ECHO;
-        });
+            return File::get($manifest[$filename]);
+        })->name('scopedviews');
     }
 }

@@ -1,0 +1,4 @@
+[data-scope="resources-views-test-inject-style-links"] p {
+  color: blue; }
+  [data-scope="resources-views-test-inject-style-links"] p span {
+    font-weight: bolder; }
